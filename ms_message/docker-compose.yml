@@ -2,14 +2,16 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0.27
+    build: 
+      context: .
+      dockerfile: Dockerfile
     environment:
       - allowPublicKeyRetrieval=true
       - useSSL=false
       - MYSQL_ROOT_PASSWORD=root
-    volumes:
-      - ./mensajeria_ms/sql/init/create.sql:/docker-entrypoint-initdb.d/:rw
-      - ./mensajeria_ms/sql/backup:/var/lib/mysql
+    #volumes:
+    #  - ./create.sql:/docker-entrypoint-initdb.d/:rw
+    #  - ./ms_message/sql/backup:/var/lib/mysql
     # networks:
     #   - db_network
     ports:
@@ -17,14 +19,14 @@ services:
 
   java_app:
     image: bondiolino/java_app
-    # ports:
-    #   - "7654:7654"
     ports:
-      - target: 7654
-        host_ip: 127.0.0.1
-        published: 7654
-        protocol: tcp
-        mode: host
+      - "7654:7654"
+    #ports:
+    #  - target: 7654
+    #    host_ip: 127.0.0.1
+    #    published: 7654
+    #    protocol: tcp
+    #    mode: host
     # networks:
     #   - db_network
     depends_on:
