@@ -1,35 +1,18 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: bondiolino/sql_mensajeria
-    environment:
-      - allowPublicKeyRetrieval=true
-      - useSSL=false
-      - MYSQL_ROOT_PASSWORD=root
-    #volumes:
-    #  - ./create.sql:/docker-entrypoint-initdb.d/:rw
-    #  - ./ms_message/sql/backup:/var/lib/mysql
-    # networks:
-    #   - db_network
-    ports:
-        - "3306:3306"
-
-  java_app:
+  app:
     image: bondiolino/java_app
     ports:
       - "7654:7654"
-    #ports:
-    #  - target: 7654
-    #    host_ip: 127.0.0.1
-    #    published: 7654
-    #    protocol: tcp
-    #    mode: host
-    # networks:
-    #   - db_network
+    hostname: app
+    networks:
+        msg-net:
+            aliases:
+            - app
     depends_on:
       - mysql
 
-# networks:
-#   db_network:
-#    driver: bridge
+networks:
+  msg-net:
+    external: true
