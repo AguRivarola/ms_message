@@ -10,8 +10,6 @@ services:
         msg-net:
             aliases:
             - app
-    depends_on:
-      - mysql
 
 networks:
   msg-net:
