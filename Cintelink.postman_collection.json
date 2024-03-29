@@ -1,0 +1,37 @@
+{
+	"info": {
+		"_postman_id": "340c9ed5-f31d-4e28-b3e6-c792d7fb334f",
+		"name": "Cintelink",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18027131"
+	},
+	"item": [
+		{
+			"name": "getMessages",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"root\",\r\n    \"password\": \"root\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"messages"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

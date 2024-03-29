@@ -25,11 +25,3 @@ Mediante ssh entramos en los workers y corremos el comando anterior dentro:
 
 - docker stack deploy --compose-file monitoring/docker-compose.yml monitoring
 - docker stack deploy --compose-file mensajeria_ms/docker-compose.yml mensajeria
-
-
-docker-compose --env-file ./default.env up -d
-
-//AWS
-
-Lanzamos una instancia ec2, la llamamos manager:
-seleccionamos amazon linux 

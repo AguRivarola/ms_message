@@ -32,11 +32,30 @@ Una vez levantadas:
 - En el menu "Instance state" seleccionar "Reboot Instance" para que se apliquen los cambios del script ec2_init.sh
 - Cambiar los nombres de las instancias a "worker1", "worker2" y "manager" (es indiferente cual a que instancia, todas son iguales en este punto)
 
+### Editar security group:
+Un punto muy importante para que funcione es habilitar los puertos necesarios para que funcione swarm con los servicios, para esto seleccionaremos la instancia "manager" y en el menu que aparecera (abajo probablemente) seleccionaremos la pestaña "Security", luego haremos clic en el link que nos lleva al security group y veremos debajo una pestaña de "inbound rules".
+Apretaremos el boton "Edit inbound rules" y en la nueva pantalla iremos agregando las siguientes reglas:
+ - 2376/tcp (swarm) 0.0.0.0/0
+ - 2377/tcp (swarm)  0.0.0.0/0
+ - 3000/tcp (grafana)  0.0.0.0/0
+ - 3100/tcp (loki)  0.0.0.0/0
+ - 3306 mysql/aurora (Mysql)  0.0.0.0/0
+ - 4789/tcp (swarm)  0.0.0.0/0
+ - 7654/tcp (api java)  0.0.0.0/0
+ - 7946/tcp (swarm)  0.0.0.0/0
+ - 7946/udp (swarm)  0.0.0.0/0
+ - 9090/tcp (prometheus)  0.0.0.0/0
+ - 14268/tcp (tempo)  0.0.0.0/0
+![ports](image.png)
+
 Cuando vuelvan a iniciar, iremos a la instancia que llamamos "manager". Nos conectaremos mediante ssh y correremos los siguientes comandos:
 - docker swarm init 
 Esto nos devolvera un comando parecido a:
 - docker swarm join --token SWMTKN-1-xxxx xxx.xxx.xxx.xxx:2377
-Deberiamos copiar el comando y (conectandonos mediante ssh en las instancias "workerX") correrlo.
+Deberiamos copiar el comando y (conectandonos mediante ssh en las instancias "workerX") correrlo y ver un mensaje del tipo:
+- This node joined a swarm as a worker.
+
+Para validar, deberiamos correr desde la instancia manager un "docker node ls" y ver tantos nodos como instancias ec2 hayamos utilizado.
 
 Una vez realizado el paso anterior, deberiamos correr el siguiente comando en la instancia "manager":
 - git clone https://github.com/AguRivarola/ms_message.git
@@ -47,12 +66,11 @@ Una vez clonado, deberiamos tener una carpeta en el directorio donde nos encontr
 
 # Networking
 Crearemos la network que va a conectar los servicios:
-- docker network create -d overlay msg-net
+- docker network create --attachable -d overlay msg-net
 
 # Monitoring
 Primeros deberiamos levantar las intancias de monitoreo:
- ### Falta el networking ? docker stack deploy --compose-file docker-compose.yml --network msg-net monitoring
-- docker stack deploy --compose-file monitoring/docker-compose.yml monitoring
+- docker stack deploy --compose-file monitoring/docker-compose.yml  monitoring
 Una vez temine de correr el comando y las instancias esten deployadas, deberiamos poder verificar con lo siguiente si estan ok:
 - docker service ls
 o 
@@ -68,6 +86,22 @@ Luego de que se levante el servicio anterior deberiamos poder levantar la api:
 # Nginx
 Luego deberiamos levantar el proxy reverso para la redireccion:
 
-- docker service create --name proxy-reverso --publish published=80,target=80 --network msg-net --mount type=bind,src=./nginx/nginx.conf,dst=/etc/nginx/nginx.conf,readonly nginx
+- docker service create --name proxy --publish published=80,target=80,mode=host --mode=global --network msg-net bondiolino/nginx:1
 
 
+# Testeo de app:
+Deberiamos utilizar el metodo post para impactar en la ip de nginx en el endpoint "/messages" utilizando el siguiente body:
+
+```
+{
+    "username": "root",
+    "password": "root"
+}
+```
+Los usuarios dispobibles son (u:agustin98, pw: 1234) y (u:root, pw:root)
+
+# Loggeo centralizado
+
+Para acceder a los logs centralizados deberiamos ingresar a {ip}:3000/dashboards y una vez alli, clickear en el que se llama "Logs, Traces, Metrics".
+
+En esta deberiamos ver los logs centralizados de las calls que hayamos realizado antes a la api con informacion y errores respectivamente.
