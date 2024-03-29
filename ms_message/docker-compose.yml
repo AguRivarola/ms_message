@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    image: bondiolino/java_app
+    ports:
+      - "7654:7654"
+    hostname: app
+    networks:
+        msg-net:
+            aliases:
+            - app
+
+networks:
+  msg-net:
+    external: true
